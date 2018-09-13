@@ -23,8 +23,13 @@ let deleteMin h = match h with
 	| EMPTY -> raise EmptyHeap
 	| NODE(_,x,lh,rh) -> merge (lh,rh)
 
-let merge (lh,rh) = match (lh,rh) with
-					| (EMPTY,EMPTY) -> raise EmptyHeap
-					| (EMPTY,_) -> rh
-					| (_,EMPTY) -> lh
-					| (NODE(
+let rec merge (lh,rh) = match (lh,rh) with
+				| (EMPTY,EMPTY) -> raise EmptyHeap
+				| (EMPTY,_) -> rh
+				| (_,EMPTY) -> lh
+				| (NODE(r1,x1,lh1,rh1),NODE(r2,x2,lh2,rh2)) ->
+		`			let 
+					if x1<x2 
+					then NODE(r1,x1,lh1,merge(rh1,rh))
+					else NODE(r2,x2,lh2,merge(lh,rh2))
+						
