@@ -54,4 +54,3 @@ let rec calculate e =
             else if v1>v2 then (calculate (INTEGRAL(e2,e1,e3))) *. -1.0
                  else 0.1*.(evalPoly e3 v1) +. (calculate (INTEGRAL(ADD(e1,REAL 0.1),e2,e3)))
 
-
