@@ -28,7 +28,7 @@ let rec calculate e =
         | INTEGRAL (e1,e2,e3) ->
                 let v1 = evalPoly e1 x in
                 let v2 = evalPoly e2 x in
-                if v1-.v2<0.1 || v2-.v1<0.1 then 0.0
+                if v2-.v1> -0.1 && v2-.v1<0.1 then 0.0
                 else if v1>v2 then (evalPoly (INTEGRAL(e2,e1,e3)) x) *. -1.0
                      else 0.1*.(evalPoly e3 v1) +. (evalPoly (INTEGRAL(ADD(e1,REAL 0.1),e2,e3)) x) 
 
@@ -50,7 +50,7 @@ let rec calculate e =
     | INTEGRAL (e1,e2,e3) ->
             let v1 = calculate e1 in
             let v2 = calculate e2 in
-            if v1-.v2 < 0.1 || v2-.v1<0.1 then 0.0
+            if v2-.v1> -0.1 && v2-.v1<0.1 then 0.0
             else if v1>v2 then (calculate (INTEGRAL(e2,e1,e3))) *. -1.0
                  else 0.1*.(evalPoly e3 v1) +. (calculate (INTEGRAL(ADD(e1,REAL 0.1),e2,e3)))
 
