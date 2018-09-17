@@ -29,4 +29,4 @@ module IntListQ =
 			| (l,x::ll) -> (x,(l,ll))
 	end
 
-(*module ValidIntListQ = (IntListQ : Queue)*)
+module ValidIntListQ = (IntListQ : Queue)
