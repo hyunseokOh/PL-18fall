@@ -18,7 +18,6 @@ let findMin h = match h with
 	| NODE(_,x,_,_) -> x
 
 let rec merge (lh,rh) = match (lh,rh) with
-				| (EMPTY,EMPTY) -> raise EmptyHeap
 				| (EMPTY,_) -> rh
 				| (_,EMPTY) -> lh
 				| (NODE(r1,x1,lh1,rh1),NODE(r2,x2,lh2,rh2)) ->
