@@ -187,7 +187,7 @@ struct
     match v with
     | Record r -> r
     | _ -> raise (Error "TypeError : not record")
-
+  
   let lookup_env_loc e x =
     try
       (match Env.lookup e x with
@@ -208,19 +208,84 @@ struct
       let v = Num (read_int()) in
       let l = lookup_env_loc env x in
       (v, Mem.store mem l v)
+    
     | WRITE e ->
       let (v, mem') = eval mem env e in
       let n = value_int v in
       let _ = print_endline (string_of_int n) in
       (v, mem')
+    
     | LETV (x, e1, e2) ->
       let (v, mem') = eval mem env e1 in
       let (l, mem'') = Mem.alloc mem' in
       eval (Mem.store mem'' l v) (Env.bind env x (Addr l)) e2
+    
     | ASSIGN (x, e) ->
       let (v, mem') = eval mem env e in
       let l = lookup_env_loc env x in
       (v, Mem.store mem' l v)
+    
+    | NUM x -> (Num x, mem)
+    | TRUE -> (Bool true, mem)
+    | FALSE -> (Bool false, mem)
+    | UNIT -> (Unit,mem)
+    | VAR id -> 
+    | ADD (e1,e2) -> 
+            let (v1,_) = eval mem env e1 in
+            let (v2,_) = eval mem env e2 in
+            (Num ((value_int v1) + (value_int v2)),mem)
+    
+    | SUB (e1,e2) -> 
+            let (v1,_) = eval mem env e1 in
+            let (v2,_) = eval mem env e2 in
+            (Num ((value_int v1) - (value_int v2)),mem)
+    
+    | MUL (e1,e2) -> 
+            let (v1,_) = eval mem env e1 in
+            let (v2,_) = eval mem env e2 in
+            (Num ((value_int v1) * (value_int v2)),mem)
+    
+    | DIV (e1,e2) -> 
+            let (v1,_) = eval mem env e1 in
+            let (v2,_) = eval mem env e2 in
+            (Num ((value_int v1) / (value_int v2)),mem)
+    
+    | EQUAL (e1,e2) -> 
+            let (v1,_) = eval mem env e1 in
+            let (v2,_) = eval mem env e2 in
+            
+            if (value_int v1)==(value_int v2) then (Bool true,mem)
+            else (Bool false,mem)
+    
+    | LESS (e1,e2) ->
+            let (v1,_) = eval mem env e1 in
+            let (v2,_) = eval mem env e2 in
+            if (value_int v1)<(value_int v2) then (Bool true,mem)
+            else (Bool false,mem)
+
+    | NOT e1 -> 
+            let (v1,_) = eval mem env e1 in
+            (Bool (not (value_bool v1)), mem)
+
+    | SEQ (e1,e2) ->
+
+    | IF (e1,e2,e3) ->
+
+    | WHILE (e1,e2) ->
+
+    | LETF (id,idl,e1,e2)
+
+    | CALLV (id,el)
+    
+    | CALLR (id,idl)
+
+    | RECORD tl
+
+    | FIELD (e1,id)
+
+    | ASSIGNF (e1,id,e2)
+
+
     | _ -> failwith "Unimplemented" (* TODO : Implement rest of the cases *)
 
   let run (mem, env, pgm) = 
