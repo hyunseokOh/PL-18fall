@@ -230,6 +230,9 @@ struct
     | FALSE -> (Bool false, mem)
     | UNIT -> (Unit,mem)
     | VAR id -> 
+            let l = lookup_env_loc env id in
+            (Mem.load mem l, mem)
+
     | ADD (e1,e2) -> 
             let (v1,_) = eval mem env e1 in
             let (v2,_) = eval mem env e2 in
@@ -285,8 +288,6 @@ struct
 
     | ASSIGNF (e1,id,e2)
 
-
-    | _ -> failwith "Unimplemented" (* TODO : Implement rest of the cases *)
 
   let run (mem, env, pgm) = 
     let (v, _ ) = eval mem env pgm in
