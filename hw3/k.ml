@@ -234,59 +234,87 @@ struct
             (Mem.load mem l, mem)
 
     | ADD (e1,e2) -> 
-            let (v1,_) = eval mem env e1 in
-            let (v2,_) = eval mem env e2 in
-            (Num ((value_int v1) + (value_int v2)),mem)
+            let (v1,mem') = eval mem env e1 in
+            let (v2,mem'') = eval mem' env e2 in
+            (Num ((value_int v1) + (value_int v2)),mem'')
     
     | SUB (e1,e2) -> 
-            let (v1,_) = eval mem env e1 in
-            let (v2,_) = eval mem env e2 in
-            (Num ((value_int v1) - (value_int v2)),mem)
+            let (v1,mem') = eval mem env e1 in
+            let (v2,mem'') = eval mem' env e2 in
+            (Num ((value_int v1) - (value_int v2)),mem'')
     
     | MUL (e1,e2) -> 
-            let (v1,_) = eval mem env e1 in
-            let (v2,_) = eval mem env e2 in
-            (Num ((value_int v1) * (value_int v2)),mem)
+            let (v1,mem') = eval mem env e1 in
+            let (v2,mem'') = eval mem' env e2 in
+            (Num ((value_int v1) * (value_int v2)),mem'')
     
     | DIV (e1,e2) -> 
-            let (v1,_) = eval mem env e1 in
-            let (v2,_) = eval mem env e2 in
-            (Num ((value_int v1) / (value_int v2)),mem)
+            let (v1,mem') = eval mem env e1 in
+            let (v2,mem'') = eval mem' env e2 in
+            (Num ((value_int v1) / (value_int v2)),mem'')
     
     | EQUAL (e1,e2) -> 
-            let (v1,_) = eval mem env e1 in
-            let (v2,_) = eval mem env e2 in
-            
-            if (value_int v1)==(value_int v2) then (Bool true,mem)
-            else (Bool false,mem)
+            let (v1,mem') = eval mem env e1 in
+            let (v2,mem'') = eval mem' env e2 in
+           
+            match (v1,v2) with
+            | (Num x1, Num x2) -> if x1=x2 then (Bool true,mem'')
+                                  else (Bool false,mem'')
+            | (Bool b1, Bool b2) -> if b1=b2 then (Bool true,mem'')
+                                    else (Bool false,mem'')
+            | (Unit,Unit) -> (Bool true,mem'')
+            | (_,_) -> (Bool false,mem'')
     
     | LESS (e1,e2) ->
-            let (v1,_) = eval mem env e1 in
-            let (v2,_) = eval mem env e2 in
-            if (value_int v1)<(value_int v2) then (Bool true,mem)
-            else (Bool false,mem)
+            let (v1,mem') = eval mem env e1 in
+            let (v2,mem'') = eval mem' env e2 in
+            if (value_int v1)<(value_int v2) then (Bool true,mem'')
+            else (Bool false,mem'')
 
     | NOT e1 -> 
-            let (v1,_) = eval mem env e1 in
-            (Bool (not (value_bool v1)), mem)
+            let (v1,mem') = eval mem env e1 in
+            (Bool (not (value_bool v1)), mem')
 
     | SEQ (e1,e2) ->
+            let (_,mem')=eval mem env e1 in
+            eval mem' env e2
 
     | IF (e1,e2,e3) ->
+            let (b,mem')=eval mem env e1 in
+            if (value_bool b) then eval mem' env e2
+            else eval mem' env e3
 
     | WHILE (e1,e2) ->
+            let (b,mem')=eval mem env e1 in
+            if (value_bool b) then (
+                let (_,mem'')=eval mem' env e2 in
+                eval mem'' env e)
+            else 
+                (Unit,mem')
 
-    | LETF (id,idl,e1,e2)
+    | LETF (id,idl,e1,e2) ->
+            let env2=Env.bind env id (Proc(idl,e1,env)) in
+            eval mem env2 e2
 
-    | CALLV (id,el)
+    | CALLV (id,el) -> 
     
-    | CALLR (id,idl)
+    | CALLR (id,idl) ->
 
-    | RECORD tl
-
+    | RECORD lst
+        let rec lstSave lst = match lst with
+        | [] -> []
+        | 
     | FIELD (e1,id)
+        let (r,mem') = eval mem env e1 in
+        let l = value_record r in
+        (Mem.load mem' (l id), mem')
 
     | ASSIGNF (e1,id,e2)
+        let (r,mem') = eval mem env e1 in
+        let (v,mem'') = eval mem' env e2 in
+        let l = value_record r in
+        (Unit,Mem.store mem'' (l id) v)
+        
 
 
   let run (mem, env, pgm) = 
