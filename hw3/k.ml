@@ -297,25 +297,27 @@ struct
             eval mem env2 e2
 
     | CALLV (id,el) -> 
-    
+            let (idl,e1,env1)=lookup_env_Proc env id in
+            let 
+
     | CALLR (id,idl) ->
 
+
     | RECORD lst
-        let rec lstSave lst = match lst with
-        | [] -> []
-        | 
+            let rec lstSave lst = match lst with
+            | [] -> []
+            | 
+
     | FIELD (e1,id)
-        let (r,mem') = eval mem env e1 in
-        let l = value_record r in
-        (Mem.load mem' (l id), mem')
+            let (r,mem') = eval mem env e1 in
+            let l = value_record r in
+            (Mem.load mem' (l id), mem')
 
     | ASSIGNF (e1,id,e2)
-        let (r,mem') = eval mem env e1 in
-        let (v,mem'') = eval mem' env e2 in
-        let l = value_record r in
-        (Unit,Mem.store mem'' (l id) v)
-        
-
+            let (r,mem') = eval mem env e1 in
+            let (v,mem'') = eval mem' env e2 in
+            let l = value_record r in
+            (Unit,Mem.store mem'' (l id) v)
 
   let run (mem, env, pgm) = 
     let (v, _ ) = eval mem env pgm in
