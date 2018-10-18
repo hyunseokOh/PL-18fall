@@ -1,0 +1,111 @@
+let proc leaf(i) =
+	let tr := {r := i, left := unit, right := unit} in
+	tr
+in
+
+let proc makeLtree(i,t) =
+	let tr := {r := i, left := t, right := unit} in
+	tr
+in
+
+let proc makeRtree(i,t) =
+	let tr := {r := i, left := unit, right := t} in
+	tr
+in
+
+let proc makeTree(i,tl,tr) =
+	let tr := {r := i, left := tl, right := tr} in
+	tr
+in
+
+let proc isEmpty(t) =
+	if (t=unit) then true
+	else false
+in
+
+let proc rTree(t) = t.right in
+
+let proc lTree(t) = t.left in
+
+let proc nodeVal(t) = t.r in
+
+let proc dft(t) =
+	
+	if isEmpty(t) then unit
+	else 
+	(
+	 let lt := lTree(t) in
+	 let rt := rTree(t) in
+	 write (nodeVal(t));
+	
+	(
+	if isEmpty(lt) then unit
+	else dft(lt)
+	);
+	(
+	if isEmpty(rt) then unit
+	else dft(rt)
+	)
+
+	)
+in
+
+
+let proc rankPrint(t,r) =
+	
+	let lt := lTree(t) in
+	let rt := rTree(t) in
+
+	if (r=0) then write (nodeVal(t))
+	else (
+			(
+			if isEmpty(lt) then unit
+			else rankPrint(lt,r-1)
+			);
+			(
+			if isEmpty(rt) then unit
+			else rankPrint(rt,r-1)
+			) 
+		)
+in
+
+
+let proc findMaxRank(t,r) =
+	
+	let lt := lTree(t) in
+	let rt := rTree(t) in
+	let max := r in
+	let lmax := r in
+	let rmax := r in
+	
+	(
+	if isEmpty(lt) then unit
+	else lmax := findMaxRank(lt,r+1) 
+	);
+	(
+	if isEmpty(rt) then unit
+	else rmax := findMaxRank(rt,r+1)
+	);
+	(
+	 if lmax<rmax then max := rmax
+	 else max := lmax
+	);
+	
+	max
+in
+
+
+let proc bft(t) =
+	if isEmpty(t) then unit
+	else (
+		let max := findMaxRank(t,0) in
+		let i := 0 in
+	
+		while (i<max+1) do (
+		
+			rankPrint(t,i);
+			i := i+1
+		)
+	)
+in
+2018
