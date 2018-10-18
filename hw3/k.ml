@@ -257,13 +257,13 @@ struct
             let (v1,mem') = eval mem env e1 in
             let (v2,mem'') = eval mem' env e2 in
            
-            match (v1,v2) with
+            (match (v1,v2) with
             | (Num x1, Num x2) -> if x1=x2 then (Bool true,mem'')
                                   else (Bool false,mem'')
             | (Bool b1, Bool b2) -> if b1=b2 then (Bool true,mem'')
                                     else (Bool false,mem'')
             | (Unit,Unit) -> (Bool true,mem'')
-            | (_,_) -> (Bool false,mem'')
+            | (_,_) -> (Bool false,mem''))
     
     | LESS (e1,e2) ->
             let (v1,mem') = eval mem env e1 in
@@ -293,27 +293,111 @@ struct
                 (Unit,mem')
 
     | LETF (id,idl,e1,e2) ->
-            let env2=Env.bind env id (Proc(idl,e1,env)) in
-            eval mem env2 e2
+            let env1=Env.bind env id (Proc(idl,e1,env)) in
+            eval mem env1 e2
 
     | CALLV (id,el) -> 
-            let (idl,e1,env1)=lookup_env_Proc env id in
-            let 
-
-    | CALLR (id,idl) ->
+            let (idl,e1,env1)=lookup_env_proc env id in
+            let env11=Env.bind env1 id (Proc(idl,e1,env1)) in
 
 
-    | RECORD lst
-            let rec lstSave lst = match lst with
-            | [] -> []
-            | 
+            let rec valUpdate el mem = match el with
+                | [] -> []
+                | hd::tl -> 
+                        let (v,mem')=eval mem env hd in
+                        v::(valUpdate tl mem')
+            in
 
-    | FIELD (e1,id)
+            let rec memUpdate el mem = match el with
+                | [] -> mem
+                | hd::tl ->
+                        let (_,mem')=eval mem env hd in
+                        memUpdate tl mem'
+            in
+
+            let vl = valUpdate el mem in
+            let mem'= memUpdate el mem in
+            
+            let rec memAlloc idl vl env mem = match (idl,vl) with
+                | ([],[]) -> (env,mem)
+                | (_,[]) -> raise (Error "InvalidArg")
+                | ([],_) -> raise (Error "InvalidArg")
+                | (idhd::idtl,vhd::vtl) -> 
+                        let (l,mem') = Mem.alloc mem in
+                        let mem''=Mem.store mem' l vhd in
+                        let env'=Env.bind env idhd (Addr l) in
+
+                        memAlloc idtl vtl env' mem''
+            in
+
+            let (env2,mem2)=memAlloc idl vl env11 mem' in
+
+            eval mem2 env2 e1
+
+
+    | CALLR (id,idli) ->
+            let (idlp,e1,env1)=lookup_env_proc env id in
+            
+            let rec envBind env idlp idli = match (idlp,idli) with
+                | ([],[]) -> env
+                | (_,[]) -> raise (Error "InvalidArg")
+                | ([],_) -> raise (Error "InvalidArg")
+                | (idlphd::idlptl,idlihd::idlitl) ->
+                        let l = lookup_env_loc env idlihd in
+                        envBind (Env.bind env idlphd (Addr l)) idlptl idlitl
+            in
+
+            eval mem (envBind env idlp idli) e1
+
+
+    | RECORD lst ->
+            let rec valUpdate lst mem = match lst with
+                | [] -> []
+                | hd::tl ->
+                        let (v,mem')=eval mem env (snd hd) in
+                        v::(valUpdate tl mem')
+            in
+            
+            let rec memUpdate lst mem = match lst with
+                | [] -> mem
+                | hd::tl ->
+                        let (_,mem')=eval mem env (snd hd) in
+                        memUpdate tl mem'
+            in
+            
+            let vl = valUpdate lst mem in
+            let mem' = memUpdate lst mem in
+
+            let rec memAlloc vl mem adl = match vl with
+                | [] -> (adl,mem)
+                | hd::tl -> 
+                        let (l,mem')=Mem.alloc mem in
+                        let mem''=Mem.store mem' l hd in
+                        let adl'=List.append adl (l::[]) in
+                        memAlloc tl mem'' adl'
+            in
+
+            let (adl,mem'')=memAlloc vl mem' [] in
+            
+            let matching id = 
+                let rec find n l = match l with
+                    | [] -> raise (Error "Unbound")
+                    | hd::tl -> if (fst hd)=id then n
+                                else find (n+1) tl
+                in
+
+                let n=find 0 lst in
+                List.nth adl n
+            in
+
+            (Record matching,mem'')
+
+    | FIELD (e1,id) ->
             let (r,mem') = eval mem env e1 in
             let l = value_record r in
             (Mem.load mem' (l id), mem')
 
-    | ASSIGNF (e1,id,e2)
+    | ASSIGNF (e1,id,e2) ->
             let (r,mem') = eval mem env e1 in
             let (v,mem'') = eval mem' env e2 in
             let l = value_record r in
