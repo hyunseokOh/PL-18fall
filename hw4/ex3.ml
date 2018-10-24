@@ -42,7 +42,8 @@ let shoppingList reqlst =
                         
                  | Except (c1,gl) -> 
                          let lst1 = itemUpdate c1 lst result in
-                         delete lst1 gl
+                         let lstdel = delete lst1 gl in
+                         insert lst lstdel
             in
 
             match clst with 
