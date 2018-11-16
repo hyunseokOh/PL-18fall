@@ -216,18 +216,25 @@ struct
       (* TODO : Add the code that marks the reachable locations.
        * let _ = ... 
        *)
-      let rec chain l = match (load l m) with
-                        | L l2 -> l::chain l2
-                        | R r -> (
-                            let rec records r = match r with
+     
+      let rec searchM m bs = match m with
+                           | [] -> []
+                           | ((b,o),_)::tl -> if bs=b then (b,o)::searchM tl bs
+                                              else searchM tl bs
+      in
+    
+      let rec chain (b,o) = match (load (b,o) m) with
+                            | L l2 -> searchM m b @ chain l2
+                            | R r -> (
+                                let rec records r = match r with
                                 | [] -> []
                                 | (_,l3)::tl2 -> (chain l3) @ (records tl2)
-                            in
-                            l::(records r)
-                        )
-                        | _ -> [l]
+                                in
+                                searchM m b @ (records r)
+                            )
+                            | _ -> searchM m b
       in
-
+    
       let rec searchE e = match e with 
                      | [] -> []
                      | (_,Loc l)::tl -> (
